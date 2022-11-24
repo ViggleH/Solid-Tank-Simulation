@@ -1,0 +1,17 @@
+clear;
+
+step = 0.2;
+eps1 = 0.0025;
+eps2 = 0.00025;
+eps3 = 10^(-3)/0.0025;
+max_calls = 3125;
+constraint = [200, 400; -30 30; 40 100; 40 80; 0 50];
+lb = [200; -30; 40; 40; 0];
+ub = [400; 30; 100; 80; 50];
+
+
+
+f = @(x) Solid_Tank_Problem(x);
+options = optimoptions('surrogateopt', 'MaxFunctionEvaluations', max_calls, 'MinSampleDistance', 0.00025);
+[x,fval,exitflag,output] = surrogateopt(f,lb,ub,options);
+save("FlexDos_surrogateopt_Result.mat")

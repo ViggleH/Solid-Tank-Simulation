@@ -1,0 +1,193 @@
+%SteveTestPlotMerge
+clear
+close all
+
+scale = 1;
+
+numProjections = 720;
+rot =360;
+laserType = 'fan';
+N = 512;
+
+tic
+
+for rPool = [80]
+% for rPool = [12800]
+    r = rPool;
+    
+    for numDet = [320]
+%     for numDet = [1280]
+        
+        geo = ScannerGeometry_CCD(r,numDet,laserType,N);
+        
+        [xInts,yInts] = RefracFunc_CCD(geo); 
+    end
+end
+
+arrayW = geo.arrayW;
+
+r1 = geo.r1; %gel radius
+r2 = geo.r2; %container radius
+r3 = geo.r3; %bore radius
+
+d1 = geo.d1;
+d2 = geo.d2;
+det = geo.det;
+
+bEll = geo.bEll;
+ecc = geo.ecc;
+
+bEll2 = geo.bEll2;
+ecc2 = geo.ecc2;
+
+k = geo.k;
+
+realh = 0;
+
+yIntEnd = yInts.*(cumsum(cumsum(yInts~=0,2),2) == 1);
+yIntEnd = yIntEnd';
+yIntEnd(yIntEnd == 0) = [];
+
+hold on
+axis square
+
+crossCount = 0;
+
+for i = 1:rPool
+    for j = 1:9
+        if xInts(i,j) ~= 0
+            x = [xInts(i,j) xInts(i,j + 1)];
+            y = [yInts(i,j) yInts(i,j + 1)];
+            if yInts(i,1)>((arrayW+k)*scale) || yInts(i,1)<-((arrayW+k)*scale) || yInts(i,1) == 0
+                l1 = line(x,y);
+                l1.Color = 'red';
+                rTrue = 1;
+                
+            elseif(nnz(xInts(i,:))<9 || max(xInts(i,:)) < det*scale)
+                l2 = line(x,y);
+                if max(xInts(i,:)) < det*scale
+                    l2.Color = 'red';
+                    rTrue = 1;
+                elseif nnz(xInts(i,:))<5
+                    l2.Color = 'blue';
+                    bTrue = 1;
+                else
+                    l2.Color = 'cyan';
+                    cTrue = 1;
+                end
+
+%             elseif yIntEnd(i)<((81.6+k)*scale) && yIntEnd(i)>((76.8+k)*scale)
+%                 l4 = line(x,y);
+%                 l4.Color = '[0.5,0,0.5]';
+%                 
+%             elseif yIntEnd(i)<((30.4+k)*scale) && yIntEnd(i)>((25.6+k)*scale)
+%                 l4 = line(x,y);
+%                 l4.Color = '[0.5,0,0.5]';
+%                 
+%             elseif yIntEnd(i)<((-20.8+k)*scale) && yIntEnd(i)>((-25.6+k)*scale)
+%                 l4 = line(x,y);
+%                 l4.Color = '[0.5,0,0.5]';
+%                 
+%             elseif yIntEnd(i)<((-72+k)*scale) && yIntEnd(i)>((-76.8+k)*scale)
+%                 l4 = line(x,y);
+%                 l4.Color = '[0.5,0,0.5]';
+%                 
+%             elseif yIntEnd(i)<((-123.2+k)*scale) && yIntEnd(i)>((-128+k)*scale)
+%                 l4 = line(x,y);
+%                 l4.Color = '[0.5,0,0.5]';
+                
+            else
+                l3 = line(x,y);
+                l3.Color = '[0,0.5,0]';
+                gTrue = 1;
+                if i <= r/2
+                    if nnz(yInts(i,:))>8 && yInts(i,1)<yInts(i+1,1)
+                        l3.Color = '[0.5,0.5,0.5]';
+                        crossCount = crossCount + 1;
+                    end
+                elseif i > r/2
+                    if nnz(yInts(i,:))>8 && yInts(i,1)>yInts(i-1,1)
+                        l3.Color = '[0.5,0.5,0.5]';
+                        crossCount = crossCount + 1;
+                    end
+                end
+            end
+        end
+    end
+    
+end
+
+%calc chord for effective rad
+%first green ray
+shortRay = zeros(r,1);
+for i = 1:r
+    if nnz(yInts(i,:))>8 && yInts(i,1)<((arrayW+k)*scale) && yInts(i,1)>-((arrayW+k)*scale) && max(xInts(i,:)) == geo.det*scale
+        IntPts = [xInts(i,6), yInts(i,6); xInts(i,5), yInts(i,5)];
+        shortRay(i,1) = pdist(IntPts,'euclidean');
+    else
+        shortRay(i,1) = 0;
+    end
+end
+oopsies = (length(shortRay) - length(shortRay(shortRay>0)))/2;
+[dumdum, effRadSelect] = min(shortRay(shortRay>0));
+for i = effRadSelect + oopsies
+%     if nnz(yInts(i,:))>8 && yInts(i,1)<((arrayW+k)*scale) && yInts(i,1)>-((arrayW+k)*scale) && max(xInts(i,:)) == geo.det*scale        
+        chordx = [xInts(i,6) xInts(i,5)];
+        chordy = [yInts(i,6) yInts(i,5)];
+        %                 break
+%     end
+end
+
+
+%draw over first green ray
+line(chordx,chordy,'LineWidth',2,'Color','m')
+%math for finding crossing point between center and line segment
+slope = (diff(chordx)./diff(chordy))^-1;
+yIntercept = chordy(1)-slope*chordx(1); %yint of chord
+yIntercept2 = k-(-slope^-1)*realh; %yint of line from center
+xIntersect = (yIntercept2-yIntercept)/(slope - (-slope^-1));
+yIntersect = slope*(xIntersect)+yIntercept;
+%plot intersect point
+plot(xIntersect,yIntersect,'black*','markersize',8)
+%plot line from center to intersect point
+line([realh,xIntersect],[k,yIntersect],'LineWidth',2)
+%calc effRad
+effRad = norm([xIntersect-realh,yIntersect-k])
+
+% line([-d1*scale d2*scale],[0 0]);
+% axis([-1000 500 -500 500])
+% axis equal
+title ('Ray Plot - acrylic - FlexyDos3D');
+% lgd = legend([l1,l3,l2],'Undetected Rays','Attenuated Ray','Direct-path Rays');
+lgd.Location = 'northwest';
+axis square
+
+theta = 0:0.001:2*pi;
+realh = 0;
+
+x1 = -d1*scale;
+hFace = x1+(bEll^2/(1 + ecc^2))^0.5; %b term from ellipse equation using a and ecc
+kFace = 0;
+%ellipse
+plot(hFace+(bEll^2/(1 + ecc^2))^0.5*cos(theta(1571:4713)),kFace+bEll*sin(theta(1571:4713)),'LineWidth' ,1, 'Color', 'cyan');
+
+%ellipse 2
+hFace2 = (d2)-(geo.bEll2^2/(1 + geo.ecc2^2))^0.5;
+kFace2 = 0;
+plot(hFace2+(bEll2^2/(1 + ecc2^2))^0.5*cos(theta([1:1571,4713:end])),kFace2+bEll2*sin(theta([1:1571,4713:end])),'LineWidth' ,1, 'Color', 'cyan');
+
+plot(realh+r1*sin(theta),k+r1*cos(theta), 'LineWidth',1, 'Color', 'blue');
+plot(realh+r2*sin(theta),k+r2*cos(theta), 'LineWidth',1, 'Color', 'm');
+plot(realh+r3*sin(theta),k+r3*cos(theta), 'LineWidth',1, 'Color', 'black');
+line([-d1*scale -d1*scale],[150*scale -150*scale]);
+line([geo.det*scale geo.det*scale],[(arrayW+k)*scale -(arrayW+k)*scale],'LineWidth',4,'Color','[0.85 0.325 0.098]');
+line([geo.det*scale geo.det*scale],[(150+k)*scale -(150+k)*scale]);
+line([min(min(xInts))*scale min(min(xInts))*scale],[10*scale -10*scale]);
+line([min(min(xInts))*scale (min(min(xInts))-10)*scale],[10*scale 10*scale]);
+line([min(min(xInts))*scale (min(min(xInts))-10)*scale],[-10*scale -10*scale]);
+scatter(0,0,'black','filled')
+scatter(realh,k,'red','filled')
+xlim([-300 geo.det+20])
+ylim([-300 geo.det+20])
+% movegui('west');
+hold off
