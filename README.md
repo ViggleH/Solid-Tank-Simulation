@@ -1,4 +1,4 @@
-# **Refractive Index Bath Container Optimization**
+# **Refractive Index Bath Container Simulation**
 
 ## **Project Description**
 This MATLAB project simulates and evaluates the geometry of a refractive index bath container (solid tank) used in optical systems. It calculates four key performance metrics to optimize the container's design:
