@@ -10,6 +10,31 @@ The code simulates ray paths through the container, visualizes results, and calc
 
 ---
 
+---
+
+## **Function Overview**
+The main function, `STD_obj`, calculates and visualizes the characteristics of the refractive index bath container.
+
+### **Function Details**
+``matlab
+Function: [score1, score2, score3] = STD_obj(x)
+Inputs:
+  x - Design parameters to be optimized for the refractive index bath container
+      x(1): L - Total length of acrylic block
+      x(2): h - Height of the bore center
+      x(3): dlaser - Distance from the laser source to the acrylic block
+      x(4): bEll - Semi-major axis length of the front ellipse
+      x(5): ecc - Eccentricity of the front ellipse
+      x(6): bEll2 - Semi-major axis length of the rear wall ellipse
+      x(7): ecc2 - Eccentricity of the rear wall ellipse
+      x(8): d3 - Distance from the back ellipse to the detectors
+Outputs:
+  score1 - Beam uniformity score
+  score2 - Magnification score
+  score3 - Effective radius score
+
+---
+
 ## **Development History**
 - **Original Code**: Developed by **Andy Ogilvy**.
 - **Current Version**: Refactored and modularized for readability, maintainability, and enhanced functionality.
