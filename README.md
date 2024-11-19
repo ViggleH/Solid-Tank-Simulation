@@ -10,13 +10,10 @@ The code simulates ray paths through the container, visualizes results, and calc
 
 ---
 
----
-
 ## **Function Overview**
 The main function, `STD_obj`, calculates and visualizes the characteristics of the refractive index bath container.
 
 ### **Function Details**
-``matlab
 -Function: [score1, score2, score3] = STD_obj(x)
 -Inputs:
 -- x - Design parameters to be optimized for the refractive index bath container
