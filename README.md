@@ -15,14 +15,11 @@ The code simulates ray paths through the container, visualizes results, and calc
 - **Current Version**: Refactored and modularized for readability, maintainability, and enhanced functionality.
 - **Enhancements**:
   - Modularized geometry setup, visualization, and score calculation.
-  - Improved visualization with color-coded ray paths and detailed container setup.
   - Added detailed documentation.
-
 ---
 
 ## **Limitations**
 - The code has not been validated against experimental or benchmark data.
-- 
 ---
 
 ## **Acknowledgment**
