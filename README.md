@@ -1,4 +1,4 @@
-# Solid-Tank-Simulation# 
+# Solid-Tank-Simulation
 
 ## **Project Summary**
 This MATLAB project focuses on optimizing the geometry of a refractive index bath container (solid tank) used in optical simulations. The goal is to evaluate and improve key metrics:
