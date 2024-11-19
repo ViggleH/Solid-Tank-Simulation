@@ -30,7 +30,6 @@ The input `x` contains the following design parameters:
 - `score1`: Beam uniformity score.
 - `score2`: Magnification score.
 - `score3`: Effective radius score.
-- `score4`: Crossing count score.
 
 ---
 
@@ -44,7 +43,6 @@ The original version of this code was developed by **Andy Ogilvy**. It has since
 
 ## **Current Limitations**
 - **Validation**: The code has not yet been validated against experimental or benchmark data.
-- **Optimization**: Further work is needed to implement iterative optimization of the container geometry.
 
 ---
 
